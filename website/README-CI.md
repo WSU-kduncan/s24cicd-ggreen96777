@@ -107,3 +107,5 @@ The GitHub workflow that is defined in `.github/workflows/docker-build.yml` file
 The variables that need to be changed are the username and password if another person were to want the image to be pushed on their repository. They have different login credentials than you so those credentials will need to be changed.
   
 # The Diagram
+
+![Diagram](https://github.com/WSU-kduncan/s24cicd-ggreen96777/blob/main/website/DockerHub_Diagram.png)
