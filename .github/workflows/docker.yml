@@ -25,7 +25,7 @@ jobs:
 
       - name: Extract version
         id: version
-        run: echo ::set-output name=VERSION::${{ steps.meta.outputs.version }}
+        run: echo "::set-output name=VERSION::${{ steps.meta.outputs.version }}"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
