@@ -46,3 +46,58 @@ A Tutorial on how to install docker on a EC2 instance.
 
 ### Description
 
+The container script is a way for Docker to automatically restart just in case the docker stops unexpectedly or crashes.
+
+### Justification
+
+The script makes sure that the services are available even when the containers have issues.
+
+### Location on Instance
+
+The container was put in a folder called deployment, and I put it there because there are other scripts/programs that will be utilizing it.
+
+# Webhook Listener Setup
+
+## Installing adnanh's webhook
+
+I did these to install the webhook.
+
+1. Download the latest release from the webhook GitHub Repository. (I used this wget command)
+   ```
+   wget https://github.com/adnanh/webhook/releases/download/2.8.1/webhook-linux-amd64.tar.gz
+   ```
+2. Extract the downloaded archive. `tar -xvzf webhook-linux-amd64.tar.gz`
+3. I then moved the webhook into the desired folder, (the deployment folder to make my life easier.) `mv`
+
+## Webhook Task Definition File
+
+###The Description
+
+The task definition file specifies actions that need to be taken when a webhook event is received.
+
+### Location on Instance
+
+I put the webhook task file in a directory where it can be accessed by other things it may need. (The container bash script). Therefore, it goes in the deployment folder.
+
+## Starting the Webhook
+
+For starting the Webhook, it worked best for me when I used cd into the deployment directory and typed `webhook -hooks hook.json -verbose` into the terminal.
+
+I used verbose here to discover any problems early.
+
+### Creating a Webhook Service File
+
+For the service file, I broke it down into unit, service, and install
+
+### Reloading Service
+
+After I modified my webhook service file to work, I typed `sudo system ctl daemon-reload` and `sudo systemctl restart webhook` right after.
+To enable the autostart on boot, I use the command `sudo systemctl enable webhook` and then i reloaded and restarts using the previous commands.
+
+## Configuring Github/Dockerhub to Message the Listener
+
+1. I first went into my repository on GitHub.
+2. Then I went towards the settings and the Webhooks or Integration section.
+3. Then I clicked on "Add a New Webhook" and pasted this url `http://3.217.189.102:9000` which was the EIP of the instance and the port 9000. I want the events to be push only so I clicked on that.
+
+
