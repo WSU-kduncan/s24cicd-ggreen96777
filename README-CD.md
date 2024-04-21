@@ -39,6 +39,7 @@ A Tutorial on how to install docker on a EC2 instance.
     sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu   $(lsb_release -cs) stable"
     ```
 4.5 I did `sudo apt-get update` again just in case.
+
 5. Finally, to install docker, I did `sudo apt-get install docker-ce`
 
 ## Container Restart Script
