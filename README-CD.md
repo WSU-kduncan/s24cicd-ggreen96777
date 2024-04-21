@@ -99,5 +99,10 @@ To enable the autostart on boot, I use the command `sudo systemctl enable webhoo
 1. I first went into my repository on GitHub.
 2. Then I went towards the settings and the Webhooks or Integration section.
 3. Then I clicked on "Add a New Webhook" and pasted this url `http://3.217.189.102:9000` which was the EIP of the instance and the port 9000. I want the events to be push only so I clicked on that.
+4. 
+
+# Diagram
+
+![Diagram of CD](https://github.com/WSU-kduncan/s24cicd-ggreen96777/blob/main/website/dockerHub_Diagram2.png)
 
 
