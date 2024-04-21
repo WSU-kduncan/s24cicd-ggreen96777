@@ -20,7 +20,7 @@ jobs:
       uses: docker/metadata-action@v3
       with:
         images: ggreen96777/ci-project-green
-        tags: latest, major, major.minor
+        tags: major, major.minor
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Docker image
