@@ -13,3 +13,11 @@ For generating a tag in Github, use `git tag -a v1.0.0 -m "Version Message Here 
 
 After generating that tag, don't forget to push it with `git push origin v1.0.0`. Make sure that the version number matches the tag that you created.
 
+## Behavior of the GitHub Workflow
+
+When the tag gets pushed towards the repository, the workflow triggers, building the Docker image and pushing it towards DockerHub with the tags 'latent' and the version tag that you just created.
+
+## DockerHub Repository
+
+[Link To DockerHub Repository](https://hub.docker.com/repository/docker/ggreen96777/ci-project-green/general)
+
