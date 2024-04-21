@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main
+      - 'v*' # Trigger only when a tag starting with 'v' is pushed
 
 jobs:
   build:
@@ -15,9 +15,18 @@ jobs:
 
     - name: Log in to DockerHub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
+    
+    - name: Use docker/metadata-action to extract version
+        id: version
+        uses: docker/metadata-action@v3
+        with:
+          images: 'ggreen96777/ci-project-green:latest' 
+          
     - name: Build Docker image
       run: docker build -t ggreen96777/ci-project-green:latest .
+
+    - name: Tag Docker image with version
+        run: docker tag ggreen96777/ci-project-green:latest ggreen96777/ci-project-green:${{ steps.version.outputs.version }}   
 
     - name: Push Docker image to DockerHub
       run: docker push ggreen96777/ci-project-green:latest
