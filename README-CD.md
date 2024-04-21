@@ -15,7 +15,7 @@ After generating that tag, don't forget to push it with `git push origin v1.0.0`
 
 ## Behavior of the GitHub Workflow
 
-When the tag gets pushed towards the repository, the workflow triggers, building the Docker image and pushing it towards DockerHub with the tags 'latent' and the version tag that you just created.
+When the tag gets pushed towards the repository, the workflow triggers, building the Docker image and pushing it towards DockerHub with the tags 'latest' and the version tag that you just created.
 
 ## DockerHub Repository
 
