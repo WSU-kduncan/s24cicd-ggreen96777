@@ -29,6 +29,4 @@ jobs:
     - name: Push Docker image to DockerHub
       run: |
         docker push ggreen96777/ci-project-green:latest
-        docker tag ggreen96777/ci-project-green:latest ggreen96777/ci-project-green:${{ github.ref }}
         docker push ggreen96777/ci-project-green:${{ github.ref }}
-
