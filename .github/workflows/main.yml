@@ -2,8 +2,8 @@ name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -16,8 +16,17 @@ jobs:
     - name: Log in to DockerHub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+    - name: Use Docker Meta Action
+      uses: docker/metadata-action@v3
+      with:
+        images: ggreen96777/ci-project-green
+        tags: latest, major, major.minor
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Build Docker image
-      run: docker build -t ggreen96777/ci-project-green:latest .
+      run: docker build -t ggreen96777/ci-project-green .
 
     - name: Push Docker image to DockerHub
-      run: docker push ggreen96777/ci-project-green:latest
+      run: |
+        docker push ggreen96777/ci-project-green:latest
+        docker push ggreen96777/ci-project-green:${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/tags/latest' && github.ref != 'refs/tags/major' && github.ref != 'refs/tags/major.minor' ? github.ref : '' }}
