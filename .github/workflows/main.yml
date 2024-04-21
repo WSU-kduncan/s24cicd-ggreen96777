@@ -29,6 +29,6 @@ jobs:
     - name: Push Docker image to DockerHub
       run: |
         docker push ggreen96777/ci-project-green:latest
-        if [[ "${{ github.event_name }}" == 'push' && "${{ github.ref_type }}" == 'tag' ]]; then
-          docker push ggreen96777/ci-project-green:${{ github.ref }};
-        fi
+        docker tag ggreen96777/ci-project-green:latest ggreen96777/ci-project-green:${{ github.ref }}
+        docker push ggreen96777/ci-project-green:${{ github.ref }}
+
