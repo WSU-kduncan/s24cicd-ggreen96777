@@ -1,0 +1,11 @@
+[Unit]
+Description=Webhook Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/webhook -hooks /s24cicd-ggreen96777/deployment/hooks.json -verbose
+WorkingDirectory=/s24cicd-ggreen96777/deployment
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
