@@ -29,4 +29,4 @@ jobs:
         push: true
         tags: |
           latest
-          v${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/v') && github.ref }}
+          v${{ github.ref.replace('refs/tags/', '') }}
