@@ -1,0 +1,9 @@
+[
+          {
+                      "id": "restart_container",
+                          "execute-command": "/s24cicd-ggreen96777/deployment/restart_container.sh",
+                              "command-working-directory": "/s24cicd-ggreen96777/deployment",
+                                  "include-command-output-in-response": true,
+                                      "response-message": "Container restarted successfully"
+          }
+]
