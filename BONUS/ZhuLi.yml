@@ -1,0 +1,142 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+   Creates 2 instances and 1 VPC. Each instance gets a private IP on its subnet and installs required software before logon. The proxy server gets a public IP, as does a NAT gateway. The backend servers use the NAT gateway for world communications, but they do not have individual public IPs.
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    ConstraintDescription: must be the name of an existing EC2 KeyPair.
+Mappings:
+  AWSRegionAMI: # AMI for Ubuntu server in each supported region 
+    us-east-1:   # N. Virginia
+      HVM64: ami-09e67e426f25ce0d7 # Ubuntu 20 (ubuntu + apt)
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: LB-VPC
+  PublicSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: LB-public-subnet
+  PrivateSubnet:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.1.0/24
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: LB-private-subnet
+  InternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties:
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: LB-ig
+  AttachGateway:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicRouteTable:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: LB-public-rt
+  PublicRouteToIG:
+    Type: 'AWS::EC2::Route'
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnetRouteTableAssociation:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PublicSubnet
+      RouteTableId: !Ref PublicRouteTable
+  ProxyInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap [AWSRegionAMI, !Ref "AWS::Region", HVM64]
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: proxy
+      NetworkInterfaces:
+        - GroupSet:
+            - !Ref SecurityGroup
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PublicSubnet
+          PrivateIpAddress: 10.0.0.10
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          apt-get update
+          apt-get install -y haproxy git python3 nginx
+          hostnamectl set-hostname proxy
+          git clone https://https://github.com/WSU-kduncan/s24cicd-ggreen96777 /opt/yourproject
+          chmod +x /opt/yourproject/install_dependencies.sh
+          /opt/yourproject/install_dependencies.sh
+          reboot
+  WebServ1Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap [AWSRegionAMI, !Ref "AWS::Region", HVM64]
+      InstanceType: t2.micro
+      KeyName: !Ref KeyName
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: webserv1
+      NetworkInterfaces:
+        - GroupSet:
+            - !Ref SecurityGroup
+          AssociatePublicIpAddress: 'false'
+          DeviceIndex: '0'
+          DeleteOnTermination: 'true'
+          SubnetId: !Ref PrivateSubnet
+          PrivateIpAddress: 10.0.1.10
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          apt-get update
+          apt-get install -y nginx git python3
+          hostnamectl set-hostname webserv1
+          git clone https://https://github.com/WSU-kduncan/s24cicd-ggreen96777 /opt/yourproject
+          chmod +x /opt/yourproject/install_dependencies.sh
+          /opt/yourproject/install_dependencies.sh
+          /opt/yourproject/update_hosts.sh
+          reboot
+
+Outputs:
+  ProxyInstanceID:
+    Value: !Ref ProxyInstance
+    Description: Instance ID of the proxy server
+  WebServ1InstanceID:
+    Value: !Ref WebServ1Instance
+    Description: Instance ID of the first web server
